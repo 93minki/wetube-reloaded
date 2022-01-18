@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "./db";
 import "./models/Video";
 import "./models/User";
@@ -6,6 +7,6 @@ import app from "./server";
 const PORT = 4000;
 
 const handleListening = () =>
-  console.log(`?œ… Server Listening on port http://localhost:${PORT} ?ŸšğŸš?`);
+  console.log(`?ï¿½ï¿½ Server Listening on port http://localhost:${PORT} ?ï¿½ï¿½ï¿½ï¿½?`);
 
 app.listen(PORT, handleListening);
