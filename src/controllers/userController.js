@@ -26,13 +26,14 @@ export const postJoin = async (req, res) => {
     });
   }
   try {
-    await User.create({
+    const cUser = await User.create({
       name,
       username,
       email,
       password,
       location,
     });
+    console.log("Join User", cUser);
     return res.redirect("/login");
   } catch (error) {
     return res.status(400).render("join", {
