@@ -1,9 +1,6 @@
 import User from "../models/User";
-import Video from "../models/Video";
 import fetch from "node-fetch";
 import bcrypt from "bcrypt";
-import { response } from "express";
-import req from "express/lib/request";
 
 export const getJoin = (req, res) => {
   return res.render("join", { pageTitle: "Join" });
@@ -26,14 +23,13 @@ export const postJoin = async (req, res) => {
     });
   }
   try {
-    const cUser = await User.create({
+    await User.create({
       name,
       username,
       email,
       password,
       location,
     });
-    console.log("Join User", cUser);
     return res.redirect("/login");
   } catch (error) {
     return res.status(400).render("join", {
@@ -77,7 +73,7 @@ export const startGithubLogin = (req, res) => {
     scope: "read:user user:email",
   };
   const params = new URLSearchParams(config).toString();
-  console.log(params);
+
   const finalURL = `${baseURL}?${params}`;
   return res.redirect(finalURL);
 };
@@ -102,7 +98,6 @@ export const finishGithubLogin = async (req, res) => {
       },
     })
   ).json();
-  console.log("tokenReq", tokenRequest);
 
   if ("access_token" in tokenRequest) {
     const { access_token } = tokenRequest;
@@ -114,7 +109,7 @@ export const finishGithubLogin = async (req, res) => {
         },
       })
     ).json();
-    console.log(userData);
+
     const emailData = await (
       await fetch(`${apiURL}/user/emails`, {
         headers: {
@@ -172,9 +167,8 @@ export const postEdit = async (req, res) => {
 
   if (name !== req.session.user.name) {
     const checkName = await User.exists({ name });
-    console.log("checkName", checkName);
+
     if (checkName) {
-      console.log("Not save (name)");
       return res.render("edit-profile", {
         pageTitle: "Edit Error",
         errorMessage: "Already Use Name",
@@ -184,9 +178,8 @@ export const postEdit = async (req, res) => {
 
   if (email !== req.session.user.email) {
     const checkEmail = await User.exists({ email });
-    console.log("checkEmail", checkEmail);
+
     if (checkEmail) {
-      console.log("Not save (email)");
       return res.render("edit-profile", {
         pageTitle: "Edit Error",
         errorMessage: "Alreay use Email",
@@ -196,9 +189,8 @@ export const postEdit = async (req, res) => {
 
   if (username !== req.session.user.username) {
     const checkUserName = await User.exists({ username });
-    console.log("checkUsername", checkUserName);
+
     if (checkUserName) {
-      console.log("Not save (username)");
       return res.render("edit-profile", {
         pageTitle: "Edit Error",
         errorMessage: "Alreay use Username",
@@ -206,7 +198,7 @@ export const postEdit = async (req, res) => {
     }
   }
 
-  const upadtedUser = await User.findByIdAndUpdate(
+  const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
       avatarUrl: file ? file.path : avatarUrl,
@@ -218,7 +210,7 @@ export const postEdit = async (req, res) => {
     { new: true }
   );
 
-  req.session.user = upadtedUser;
+  req.session.user = updatedUser;
   return res.redirect("/users/edit");
 };
 
@@ -258,8 +250,14 @@ export const postChangePassword = async (req, res) => {
 
 export const see = async (req, res) => {
   const { id } = req.params;
-  const user = await User.findById(id).populate("videos");
-  console.log(user);
+  const user = await User.findById(id).populate({
+    path: "videos",
+    populate: {
+      path: "owner",
+      model: "User",
+    },
+  });
+
   if (!user) {
     return res.status(404).render("404", { pageTitle: "User not found." });
   }
