@@ -2,7 +2,9 @@ import User from "../models/User";
 import Video from "../models/Video";
 
 export const home = async (req, res) => {
-  const videos = await Video.find({}).sort({ createdAt: "desc" });
+  const videos = await Video.find({})
+    .sort({ createdAt: "desc" })
+    .populate("owner");
   return res.render("home", { pageTitle: "Home", videos });
 };
 export const watch = async (req, res) => {
@@ -68,10 +70,9 @@ export const postUpload = async (req, res) => {
     user.videos.push(newVideo._id);
 
     user.save();
-    console.log("Success");
+
     return res.redirect("/");
   } catch (error) {
-    console.log("Failed", error);
     return res.status(400).render("upload", {
       pageTitle: "Upload Video",
       errorMessage: error._message,
@@ -99,9 +100,20 @@ export const search = async (req, res) => {
   if (keyword) {
     videos = await Video.find({
       title: {
-        $regex: new RegExp(keyword, "i", "g"),
+        $regex: new RegExp(`${keyword}$`, "i"),
       },
-    }).sort({ createdAt: "desc" });
+    }).populate("owner");
   }
   return res.render("search", { pageTitle: "Search", videos });
+};
+
+export const registerView = async (req, res) => {
+  const { id } = req.params;
+  const video = await Video.findById(id);
+  if (!video) {
+    return res.status(404);
+  }
+  video.meta.views = video.meta.views + 1;
+  await video.save();
+  return res.status(200);
 };
