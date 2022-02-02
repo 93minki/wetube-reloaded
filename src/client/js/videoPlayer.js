@@ -101,7 +101,9 @@ const handleVideoClick = () => {
 };
 
 const handleKeyboard = (event) => {
-  if (event.code === "Space") {
+  const focused = document.activeElement;
+  const textArea = document.getElementById("textarea");
+  if (event.code === "Space" && focused !== textArea) {
     handlePlayClick();
   }
 };
