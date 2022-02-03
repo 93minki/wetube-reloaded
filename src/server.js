@@ -21,7 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.text());
 app.use(express.json());
 
-app.use(cors());
 app.use((req, res, next) => {
   res.header("Cross-Origin-Embedder-Policy", "require-corp");
   res.header("Cross-Origin-Opener-Policy", "same-origin");
