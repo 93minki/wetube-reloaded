@@ -162,10 +162,6 @@ export const postEdit = async (req, res) => {
     body: { name, email, username, location },
     file,
   } = req;
-
-  // const i = req.session.user.id
-  // const { name, email, username, location } = req.body;
-
   if (name !== req.session.user.name) {
     const checkName = await User.exists({ name });
 
@@ -202,7 +198,7 @@ export const postEdit = async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
-      avatarUrl: file ? file.path : avatarUrl,
+      avatarUrl: file ? file.location : avatarUrl,
       name,
       email,
       username,
