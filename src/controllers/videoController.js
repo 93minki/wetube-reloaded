@@ -14,7 +14,7 @@ export const watch = async (req, res) => {
   const video = await Video.findById(id).populate("owner").populate("comments");
   const comments = video.comments;
   comments.forEach(async (comment) => {
-    console.log(comment.owner);
+    console.log(comment.username);
     const findUser = await Comment.findById(String(comment.owner));
     console.log(findUser);
   });
@@ -150,17 +150,17 @@ export const createComment = async (req, res) => {
   }
   const comment = await Comment.create({
     text,
+    username: user.username,
     owner: user._id,
     video: id,
   });
 
   video.comments.push(comment._id);
   video.save();
-
-  const username = await Comment.findById(comment._id).populate("owner");
+  console.log(comment.username);
   return res.status(201).json({
     newCommentId: comment._id,
-    newCommentUser: username.owner.username,
+    newCommentUser: comment.username,
   });
 };
 
