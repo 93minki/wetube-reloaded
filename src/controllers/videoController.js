@@ -13,11 +13,7 @@ export const watch = async (req, res) => {
   const { id } = req.params;
   const video = await Video.findById(id).populate("owner").populate("comments");
   const comments = video.comments;
-  comments.forEach(async (comment) => {
-    console.log(comment.username);
-    const findUser = await Comment.findById(String(comment.owner));
-    console.log(findUser);
-  });
+
   if (!video) {
     return res.render("404", { pageTitle: "Video Not Found." });
   }
